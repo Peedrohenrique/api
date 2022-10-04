@@ -1,64 +1,51 @@
-const db = require("../config/db");
+const modelUsers = require("../models/ModelUsers");
 
 module.exports = {
+  async getAll(req, res) {
+    try {
+      const users = await modelUsers.getAll();
+      return res.status(200).json(users);
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  },
+
+  async getFindOne(req, res) {
+    const { id } = req.params;
+    try {
+      const user = await modelUsers.getFindOne(id);
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  },
+
   async post(req, res) {
-    let datas = {
-      nome: req.body.nome,
-      email: req.body.email,
-      senha: req.body.senha,
-    };
-
     try {
-      let response = await db.query("INSERT INTO usuarios SET ?", [datas]);
-      res.json(response);
+      const user = await modelUsers.post(req.body);
+      return res.status(201).json(user);
     } catch (error) {
-      console.log(error);
+      return res.status(500).json(error.message);
     }
   },
+
   async update(req, res) {
-    let id = req.params.id;
+    const { id } = req.params;
+    try {
+      await modelUsers.update(id, req.body);
+      return res.status(204).json();
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  },
 
-    let datas = {
-      nome: req.body.nome,
-      email: req.body.email,
-      senha: req.body.senha,
-    };
-    try {
-      let response = await db.query("UPDATE usuarios SET ? WHERE id = ?", [
-        datas,
-        id,
-      ]);
-      res.json(response);
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  async get(req, res) {
-    try {
-      let response = await db.query("SELECT * FROM usuarios");
-      res.json(response[0]);
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  async getById(req, res) {
-    let id = req.params.id;
-
-    try {
-      let response = await db.query(`SELECT * FROM usuarios WHERE id = ${id}`);
-      res.json(response[0]);
-    } catch (error) {
-      console.log(error);
-    }
-  },
   async delete(req, res) {
-    let id = req.params.id;
-
+    const { id } = req.params;
     try {
-      let response = await db.query(`DELETE FROM usuarios WHERE id = ${id}`);
-      res.json(response);
+      await modelUsers.delete(id);
+      return res.status(204).json();
     } catch (error) {
-      console.log(error);
+      return res.status(500).json(error.message);
     }
   },
 };
